@@ -1,0 +1,624 @@
+Practice DQL Statement
+Write SQL statement for the following
+
+1. To find all managers with salary >1500
+	SELECT *
+	FROM emp
+	WHERE job = 'MANAGER' AND sal>1500; 	
+
+2. list all employees with sal >1200 and < 2000
+	SELECT *
+	FROM emp
+	WHERE sal BETWEEN 1200 AND 2000;
+
+3. list all employees with sal is 1600 or sal is 800 or sal is 1900
+	SELECT *
+	FROM emp
+	WHERE sal IN (1600, 800, 1900)
+	ORDER BY sal;
+
+4. list all employees with R at second last position in name
+	SELECT *
+	FROM emp
+	WHERE ename LIKE '%R_';
+
+5. List all employees with name starts with A and ends with N
+	SELECT *
+	FROM emp
+	WHERE ename LIKE 'A%N';
+
+
+Q2. Solve following
+1. list all employees with salary > 1250 and dept no=30
+	SELECT *
+	FROM emp
+	WHERE sal>1250 AND deptno=30;
+
+2. list all employees with salary >=1250 and <= 3000
+	SELECT *
+	FROM emp
+	WHERE sal BETWEEN 1250 AND 3000;
+	
+3. list all employees with salary >1250 and < 3000
+	SELECT *
+	FROM emp
+	WHERE sal>1250 AND sal<3000;
+
+4. list all employees with salary either equal to 3000 or 1250 or 2500
+	SELECT *
+	FROM emp
+	WHERE sal IN (1250,2500,3000);
+
+5. list all employee with name=SMITH
+	SELECT *
+	FROM emp
+	WHERE ename='SMITH';
+
+6. list all employees with name starting with S
+	SELECT *
+	FROM emp
+	WHERE ename LIKE 'S%';
+
+7. list all employees with name ending with S
+	SELECT *
+	FROM emp
+	WHERE ename LIKE 'S%';
+
+8. list all employees with name contains I at 2nd position
+	SELECT *
+	FROM emp
+	WHERE ename='_I%';
+
+9. list all employees with name starts with A ends with N and somewhere in between L is there
+	SELECT *
+	FROM emp
+	WHERE ename='A%L%N';
+
+10. list all employees with name starts with A and B at 3 rd position and P at second last position
+	SELECT *
+	FROM emp
+	WHERE ename='A_B%P_';
+
+11. List all employees with name starts with either A or starts with S or starts with W
+	SELECT *
+	FROM emp
+	WHERE REGEXP_LIKE(ename,'^[ASW]');
+	
+	
+practice Aggregate functions
+12. find max sal and min sal for each job
+	SELECT job, MAX(sal) Max_sal, MIN(sal) Min_sal
+	FROM emp
+	GROUP BY job;
+
+13. find how many employess have not received commission
+	SELECT COUNT(*)
+	FROM emp
+	WHERE comm IS NULL or comm=0; 
+14. find sum of sal of all employees working in dept no 10
+	SELECT deptno, SUM(sal)
+	FROM emp
+	WHERE deptno = 10
+	GROUP BY deptno;  
+15. find maximum salary,average sal for each job in every department
+	SELECT deptno, job, max(sal), avg(sal)
+	FROM emp
+	GROUP BY deptno, job
+	ORDER BY deptno;
+16. find max salary for every department if deptno is > 15 and arrange data in deptno order.
+	SELECT deptno, MAX(sal)
+	FROM emp
+	WHERE deptno > 15
+	GROUP BY deptno
+	ORDER BY deptno;
+
+17. find sum salary for every department if sum is > 3000
+	SELECT deptno, SUM(sal)
+	FROM emp
+	GROUP BY deptno
+	HAVING SUM(sal) > 3000
+	ORDER BY deptno;
+
+18. list all department which has minimum 5 employees
+	SELECT deptno, COUNT(*)
+	FROM emp
+	GROUP BY deptno
+	HAVING COUNT(*) >= 5;
+
+19. count how many employees earn salary more than 2000 in each job
+	SELECT job, COUNT(*)
+	FROM emp
+	WHERE sal > 2000
+	GROUP BY job
+	ORDER BY COUNT(*);
+20. list all enames and jobs in small case letter
+	SELECT LOWER(ename), LOWER(job)
+	FROM emp;
+
+21. list all names and jobs so that the length of name should be 15 if it is smaller then add spaces 
+to left
+	SELECT ename, job, 
+	case WHEN LENGTH(ename)<15 THEN lpad(ename,15,' ')
+	END "NEW COLUMN" 
+	FROM emp;
+	
+22. display min sal,max sal, average sal for all employees working under same manager
+	SELECT mgr, MIN(sal) Min_sal, MAX(sal) MAX_sal, ROUND(AVG(sal), 2) Avg_sal
+	FROM emp
+	GROUP BY mgr;
+
+23. find sum of total earnings(sal+comm), average of sal+comm,for all employees who earn sal > 2000 and work in either dept no 10 or 20
+	SELECT deptno, sum(sal+comm) "Total Earnings", Avg(sal+comm) Average
+	FROM emp
+	WHERE sal > 2000 AND deptno IN (10,30)
+	GROUP BY deptno
+	ORDER BY deptno; 
+
+24. list all employees who joined in Aug 1980 and salary is >1500 and < 2500
+	SELECT ename, sal
+	FROM emp
+	WHERE  EXTRACT(MONTH FROM hiredate)=8 AND  EXTRACT(YEAR FROM hiredate)=1980 AND sal BETWEEN 1500 AND 2500;
+
+25. list all employees joined in either aug or may or dec
+	SELECT *
+	FROM emp
+	WHERE EXTRACT(MONTH from hiredate) IN (8,5,12);
+
+26. display name and hiredate in dd/mm/yy format for all employees whose job is clerk and they 
+earn some commission
+	SELECT ename, job, comm, TO_CHAR(hiredate,'DD/MM/YY')
+	FROM emp
+	WHERE job = 'CLERK' AND comm IS NOT NULL AND comm=0;
+
+27. list empcode,empno,name and job for each employee. (note :empcode is 3 to 5 characters 
+from name and last 2 characters of job)
+	SELECT empno, ename, job, concat(SUBSTR(ename,3,3), SUBSTR(JOB,LENGTH(JOB)-1,2)) empcode
+	FROM emp;
+
+28. display thousand separator and $ symbol for commission 
+if it is null then display it as 0 for all
+employees whose name starts with A and ends with N
+	SELECT ename, CASE WHEN comm>0 THEN TO_CHAR(comm,'$9,999.00')
+    	WHEN comm IS NULL AND ename LIKE 'A%N' THEN TO_CHAR(NVL(comm,0),'$9')
+    	END comm1
+   	FROM emp; 
+
+29. Display empid,name,sal,comm,remark Remark should base on following conditions
+comm >= 600 "excellent Keep it up"
+if it < 600 or not null "good"
+otherwise "Need improvement"
+	SELECT empno,ename,sal,comm,CASE WHEN comm>=600 THEN 'Excellent Keep it up'
+	WHEN comm<600 OR comm IS NOT NULL THEN 'Good'
+	ELSE 'Need improvement'
+	END REMARK
+	FROM emp;
+
+30. Display empid, name, deptno and department name by using following conditions.
+dept 10 then "Hr"
+if 20 then "Admin"
+if 30 then "accounts"
+otherwise purchase
+	SELECT empno,ename,deptno, CASE deptno WHEN 10 THEN 'Hr'
+	WHEN 20 then 'Admin'
+	WHEN 30 then 'Accounts'
+	ELSE 'Purchase' END "department name"
+	FROM emp;
+
+Topic ----------------- create Table, DML , subquery and joins
+
+31. create table mydept_DBDA
+(
+deptid number primary key,
+dname varchar2(20) not null unique,
+dloc varchar2(20)
+)
+
+
+32. Create following tables Student, Course
+	Student (sid,sname) ---------------- sid ---primary key
+		CREATE TABLE Student(
+		sid Number primary key,
+		sname varchar2(20));
+	Course(cid,cname)-------------- cid ---primary key
+		CREATE TABLE Course(
+  		cid Number primary key,
+  		cname varchar2(20));
+	Marks(studid,courseid,marks):
+		CREATE TABLE Marks(
+  		studid Number,
+ 		courseid Number,
+    		marks Number,
+    		Constraint pk1 primary key(studid,courseid),
+   		Constraint fk1 foreign key(studid) references Student(sid),
+   		Constraint fk2 foreign key(courseid) references Course(cid));
+	INSERT DATA INTO STUDENT TABLE:
+		INSERT ALL
+   		INTO STUDENT (sid,sname)
+    		VALUES(1,'RIDDHI')
+    		INTO STUDENT (sid,sname)
+   		VALUES(2,'SAMIRA')
+  		INTO STUDENT (sid,sname)
+   		VALUES(3,'RUTUJA')
+		INTO STUDENT (sid,sname)
+   		VALUES(4,'AISHWARYA')
+  		SELECT * FROM STUDENT;
+	INSERT DATA INTO COURSE TABLE:
+		INSERT ALL
+   		INTO COURSE (cid,cname)
+    		VALUES(1,'SQL')
+    		INTO COURSE (cid,cname)
+   		VALUES(2,'PYTHON')
+  		INTO COURSE (cid,cname)
+   		VALUES(3,'JAVA')
+  		SELECT * FROM COURSE;
+	INSERT DATA INTO MARKS TABLE:
+	 	INSERT ALL
+    		INTO MARKS (STUDID,COURSEID,MARKS)
+    		VALUES(1,3,98)
+    		INTO MARKS (STUDID,COURSEID,MARKS)
+   		VALUES(2,1,95)
+   		INTO MARKS (STUDID,COURSEID,MARKS)
+  		VALUES(2,2,97)
+  		SELECT * FROM MARKS;
+
+33. Create empty table emp10 with table structure same as emp table.
+	create table emp10 as
+    	(
+    	select *
+    	from emp
+   	where 1=2);
+
+35. Update employee sal ---- increase sal of each employee by 15 % sal +comm, change the job to 
+manager and mgr to 7777 for all employees in deptno 10
+	UPDATE emp
+	SET sal=(1.15*sal)+NVL(comm,0),
+		job= 'MANAGER',
+		mgr=7777
+		WHERE deptno = 10;
+
+36. change job of smith to senior clerk
+	UPDATE emp
+	SET job='Sr.Clerk'
+	WHERE ename='SMITH';
+
+ 
+37. increase salary of all employees by 15% if they are earning some commission
+	UPDATE emp
+	SET sal=(1.15*sal)
+		WHERE comm>0;
+
+38. list all employees with sal>smith's sal
+	SELECT *
+	FROM emp
+	WHERE sal> (SELECT sal FROM emp WHERE ename='SMITH');
+
+39. list all employees who are working in smith's department
+	SELECT * 
+	FROM emp
+	WHERE deptno IN (SELECT deptno FROM EMP WHERE ename='SMITH');
+
+40. list all employees with sal < rajan's sal and salary > revati's sal
+	SELECT *
+	FROM emp
+	WHERE sal> (SELECT sal FROM emp WHERE ename='SMITH') AND sal <(SELECT sal FROM emp WHERE ename= 'ALLEN');
+
+41. delete all employees working in alan's department
+	DELETE from emp
+	where deptno IN (SELECT deptno from emp e WHERE ename='ALLEN';
+
+42. change salary of Alan to the salary of Miller.
+	UPDATE emp
+	SET sal=(SELECT sal FROM emp WHERE ename='MILLER')
+	WHERE ename='ALLEN'; 
+
+43. change salary of all emplees who working in Wall's department to the salary of Miller.
+	UPDATE EMP
+    	SET SAL=(SELECT SAL FROM EMP WHERE ENAME='MILLER')
+    	WHERE DEPTNO=(SELECT DEPTNO FROM EMP WHERE ENAME='WARD');
+
+44. list all employees with salary > either Smith's salary or alan's sal
+	SELECT *
+	FROM emp
+	WHERE sal> ALL(SELECT sal FROM emp WHERE ename IN ('SMITH','ALLEN'));
+
+45. list all employees who earn more than average sal of dept 10
+	SELECT *
+	FROM EMP
+	WHERE SAL > (SELECT AVG(SAL)
+	FROM EMP
+	WHERE DEPTNO=10
+	GROUP BY DEPTNO);  
+
+46. list all employees who earn more than average sal of Alan's department
+	SELECT *
+	FROM emp
+	WHERE SAL>(SELECT AVG(SAL) FROM emp WHERE ename='ALLEN' 
+		GROUP BY deptno); 
+
+47. list all employees who are working in SALES department
+	SELECT *
+	FROM emp
+	WHERE deptno=(SELECT deptno FROM DEPT WHERE DNAME='SALES');	
+
+48. list all employees who earn more than average salary of their own department
+	SELECT *
+	FROM emp e
+	WHERE sal> (SELECT avg(sal) FROM emp m
+			WHERE e.deptno = m.deptno);
+
+49. list all employees who earn sal < than their managers salary
+	SELECT *
+	FROM emp e
+	WHERE sal < (SELECT sal FROM emp m
+			WHERE e.mgr=m.empno);
+
+50. list all employees who are earning more than average salary of their job
+	SELECT *
+	FROM emp e
+	WHERE sal > (SELECT avg(sal) FROM emp m
+			WHERE e.job = m.job
+			GROUP BY job);	
+
+51. display employee name and department
+	SELECT ename, dname
+	FROM emp e, dept d
+	WHERE e.deptno = d.deptno;	
+
+52. display empno,name,department name and grade (use emp,dept and salgrade table
+	SELECT empno, ename, dname,grade
+	FROM emp e
+	INNER JOIN dept d ON d.deptno = e.deptno
+	INNER JOIN salgrade s ON e.sal BETWEEN s.losal AND s.hisal;
+
+53. list all employees number,name, mgrno and manager name
+	SELECT e.empno,e.ename,e.mgr,m.ename
+	FROM emp e SELF JOIN emp m
+	ON e.mgr=m.empno;
+
+54. create following tables and solve following questions
+(primary keys are marked in yellow)
+foreign keys are marked in green
+	product(pid,pname,price,qty,cid,sid)
+		CREATE TABLE PRODUCT (
+  		PID NUMBER PRIMARY KEY,
+   		PNAME VARCHAR2(20) NOT NULL,
+   		PRICE NUMBER,
+   		QTY NUMBER,
+   		cid NUMBER,
+  		sid NUMBER,
+   		CONSTRAINT FK3 FOREIGN KEY(cid) REFERENCES CATEGORY(CID),
+ 		CONSTRAINT FK4 FOREIGN KEY(sid) REFERENCES SALESMAN(SID));
+	salesman (sid,sname,address)
+		CREATE TABLE SALESMAN (
+    		SID NUMBER PRIMARY KEY,
+   		SNAME VARCHAR2(20) NOT NULL,
+   		ADDRESS VARCHAR(100));
+	category(cid,cnam,descritpion)
+		CREATE TABLE CATEGORY (
+   		CID NUMBER PRIMARY KEY,
+   		CNAME VARCHAR2(20) NOT NULL,
+   		DESCRIPTION VARCHAR(100));
+	INSERT DATA INTO SALESMAN TABLE:
+		INSERT INTO SALESMAN VALUES(1,'RAJ','AUNDH, PUNE');
+		INSERT ALL
+    		INTO SALESMAN(SID,SNAME,ADDRESS) VALUES(2,'PIYUSH','AUNDH, PUNE')
+    		INTO SALESMAN(SID,SNAME,ADDRESS) VALUES(3,'MOHAN','PANVEL, NAVI MUMBAI')
+    		INTO SALESMAN(SID,SNAME,ADDRESS) VALUES(4,'GAURI','KATRAJ, PUNE')
+   		SELECT * FROM SALESMAN
+	INSERT DATA INTO CATEGORY TABLE:
+		INSERT ALL
+    		INTO CATEGORY(CID,CNAME,DESCRIPTION)
+    		VALUES(1,'COMPUTER PARTS','ALL TYPE OF COMPUTER HARDWARE AND SOFTWARE SERVICES AVAILABLE')
+    		INTO CATEGORY(CID,CNAME,DESCRIPTION)
+    		VALUES(2,'BOOKS','ALL TYPE OF BOOKS AVAILABLE')
+    		INTO CATEGORY(CID,CNAME,DESCRIPTION)
+  		VALUES(3,'ACCESSORIES','ALL TYPE OF MOBILE, ELECTRONIC AND MISCELLANEOUS ACCESSORIES AVAILABLE')
+ 		SELECT * FROM CATEGORY;
+	INSERT DATA INTO PRODUCT TABLE:
+		INSERT INTO PRODUCT VALUES(1,'HARD DISK',1200,3,1,3);
+		INSERT ALL
+    		INTO PRODUCT(PID,PNAME,PRICE,QTY,CID,SID) VALUES(2,'LET US C BOOK',550,4,2,4)
+  		INTO PRODUCT(PID,PNAME,PRICE,QTY,CID,SID) VALUES(3,'HEADPHONE',1250,2,3,2)
+    		INTO PRODUCT(PID,PNAME,PRICE,QTY,CID,SID) VALUES(4,'CHARGER',500,4,3,1)
+    		INTO PRODUCT(PID,PNAME,PRICE,QTY,CID,SID) VALUES(5,'PYTHON BOOK',700,6,2,4)
+    		INTO PRODUCT(PID,PNAME,PRICE,QTY,CID,SID) VALUES(6,'PEN DRIVE',300,3,1,3)
+   		SELECT * FROM PRODUCT
+
+1. list all product name,their category name and name of a person, who sold that product
+	SELECT p.pname, c.cname,s.sname
+	FROM PRODUCT P inner join CATEGORY C 
+	ON P.CID=C.CID INNER JOIN SALESMAN S
+	ON P.SID=S.SID;
+
+2. list all product name and salesman name for all salesman who stays in pune
+	SELECT p.pname, s.sname, s.address
+	FROM product p 
+	INNER JOIN salesman s ON p.sid= s.sid
+	WHERE s.address LIKE '%Pune%';
+
+
+3. list all product name and category name
+	SELECT p.pname, c.cname,s.sname
+	FROM PRODUCT P inner join CATEGORY C 
+	ON P.CID=C.CID;
+
+
+
+55. create following tables and solve following questions(primary keys are marked in yellow)
+foreign keys are marked in green
+faculty(fid,fname,sp.skill1,sp.skill2)
+CREATE TABLE FACULTY
+    (FID NUMBER PRIMARY KEY,
+    FNAME VARCHAR2(10),
+    SPSKILL1 VARCHAR2(5),
+    SPSKILL2 VARCHAR2(5));
+
+courses(cid,cname,rid,fid)
+CREATE TABLE COURSES
+    (CID NUMBER PRIMARY KEY,
+    CNAME VARCHAR2(10),
+    RID NUMBER,
+    FID NUMBER,
+    CONSTRAINTS FK6 FOREIGN KEY RID REFERENCES ROOM(ROOMID),
+    CONSTRAINTS FK7 FOREIGN KEY FID REFERENCES FACULTY(FID));
+ 
+
+room(roomid,rname,rloc)
+CREATE TABLE ROOM
+    (ROOMID NUMBER PRIMARY KEY,
+    RNAME VARCHAR2(10),
+    RLOC VARCHAR2(10));
+
+faculty
+fid fname spskill1 spskill2
+10 kjzhcjhz a b
+11 sdd x z
+12 lksjk a x
+13 ksdjlkj a b
+
+INSERT INTO faculty VALUES(10,'kadf','a','b');
+INSERT INTO faculty VALUES(11,'sdd','x','z');
+INSERT INTO faculty VALUES(12,'sfdh','a','x');
+INSERT INTO faculty VALUES(13,'fer','a','b');
+
+Room 
+roomid rname rloc
+100 jasmin 1st floor
+101 Rose 2nd floor
+105 Lotus 1st floor
+103 Mogra 1st floor
+
+INSERT INTO ROOM VALUES(100,'Jasmin','1st floor');
+INSERT INTO ROOM VALUES(101,'Rose','2nd floor');
+INSERT INTO ROOM VALUES(105,'Lotus','1st floor');
+INSERT INTO ROOM VALUES(103,'Mogra','1st floor');
+
+courses 
+cid cname rid fid
+121 DBDA 100 10 
+131 DAC 101 
+141 DTISS 
+151 DIOT 105 12 
+
+INSERT INTO courses VALUES(121,'DBDA',100,10);
+INSERT INTO courses VALUES(131,'DAC',101,NULL);
+INSERT INTO courses VALUES(141,'DITISS',NULL,NULL);
+INSERT INTO courses VALUES(151,'DIOT',105,12);
+
+ 
+1. list all courses for which no room is assigned and all rooms for which are 
+available
+	SELECT c.cid, c.cname, r.roomid, r.rname
+	FROM courses c
+	FULL JOIN room r ON c.rid = r.roomid; 
+
+2. list all faculties who are not allocated to any course and rooms which are not 
+allocated to any course
+	SELECT f.fid,f.fname,c.cid,c.cname,r.roomid,r.rname
+	FROM faculty f LEFT JOIN courses c 
+	ON c.fid=f.fid FULL JOIN room r
+	ON c.rid=r.roomid;
+
+
+3. list all rooms which are allocated or not allocated to any courses
+	SELECT r.roomid, r.rname, c.cid, c.cname
+	FROM room r
+	FULL JOIN courses c ON r.roomid = c.rid;
+
+4. list all rooms which are not allocated to any courses
+	SELECT *
+	FROM room r LEFT JOIN courses c
+	ON c.rid=r.roomid;
+
+5. display courses and faculty assigned to those courses whose special skill is 
+database (b)
+	SELECT c.cid, c.cname, f.fid, f.fname
+	FROM courses c
+	INNER JOIN faculty f ON c.fid = f.fid
+	WHERE spskill2 = 'b'; 
+	
+
+6. display time table --- it should contain course details , faculty and room 
+details
+	SELECT c.cid, c.cname, f.fname, r.rname, r.rloc
+	FROM courses c
+	INNER JOIN faculty f ON c.fid = f.fid
+	INNER JOIN room r ON r.roomid = c.rid;
+
+
+56. create following tables with given constraints
+product---- qty >0, default 20.00,pname not null and unique
+prodid pname qty price catid sid
+123 lays 30 30.00 1 12
+111 pepsi 40 50.00 4 11
+134 nachos 50 50.00 1 12
+124 dairy milk 40 60.00 2 14 
+124 pringles 40 60.00 1 14 
+	CREATING PRODUCT TABLE:
+	CREATE TABLE Product(prodid number primary key, pname VARCHAR2(10) NOT NULL,qty NUMBER check(qty>0), price NUMBER(8,2) default 20.00,
+    	catid number, sid number,
+    	CONSTRAINTS PNAME_UNIQUE UNIQUE (pname),
+    	CONSTRAINTS catid_FK8 foreign key (catid) REFERENCES category(cid),
+    	CONSTRAINTS sid_FK9 foreign key (sid) REFERENCES salesman(sid));
+
+saleman ----- sname -----not null
+sid sname city 
+11 Rahul Pune
+12 Kirti Mumbai
+13 Prasad Nashik
+14 Arnav Amaravati
+	CREATING SALESMAN TABLE:
+	CREATE TABLE SALESMAN(SID NUMBER PRIMARY KEY,
+  	SNAME VARCHAR2(10) NOT NULL , CITY VARCHAR2(15)); 
+
+category ---- cname unique and not null 
+cid cname description
+1 chips very crunchy
+2 chocolate very chocolaty
+3 snacks yummy
+4 cold drinks thanda thanda cool cool
+	CREATING CATEGORY TABLE:
+	CREATE TABLE CATEGORY(CID NUMBER PRIMARY KEY,
+	CNAME VARCHAR2(20) NOT NULL ,
+   	DESCRIPTION VARCHAR2(25),
+   	CONSTRAINT cname_unique UNIQUE (CNAME))
+
+1. List all products with category chips
+	SELECT p.prodid, p.pname, c.cid, c.cname
+	FROM product p
+	INNER JOIN category c ON p.catid = c.cid
+	WHERE c.cname = 'CHIPS'; 
+
+2. display all products sold by kirti
+	SELECT p.prodid, p.pname,s.sid, s.sname
+	FROM product p INNER JOIN salesman s
+	ON p.sid=s.sid
+	WHERE s.sname='KIRTI';
+
+3. display all salesman who do not sold any product
+	SELECT *
+	FROM salesman s
+	WHERE NOT EXISTS (SELECT sid FROM product p
+		WHERE p.sid = s.sid);
+
+
+4. display all category for which no product is there
+	SELECT *
+	FROM category c
+	WHERE NOT EXISTS(SELECT catid FROM product p
+			WHERE p.catid=c.cid);
+
+5. display all products with no category assigned
+	SELECT *
+	FROM product 
+	WHERE catid IS NULL;
+
+6. list all salesman who stays in city with name starts with P or N
+	SELECT *
+	FROM salesman
+	WHERE REGEXP_LIKE(CITY,'^[PN]');
+
+7. add new column in salesman table by name credit limit
+	ALTER TABLE salesman
+	ADD credit_limit NUMBER(9,2); 
+

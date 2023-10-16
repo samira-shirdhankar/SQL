@@ -1,0 +1,108 @@
+1.Write a query to display the first day of the month (in datetime format) three 
+months before the current month.
+Sample current date : 2014-09-03
+Expected result : 2014-06-01
+
+	SELECT TO_CHAR(add_months(round(sysdate,'month'),-3),'YYYY-MM-DD')
+	from dual;
+
+2. Write a query to display the last day of the month (in datetime format) three 
+months before the current month.
+	SELECT ADD_MONTHS(LAST_DAY(SYSDATE),-3)
+	FROM dual;
+
+3. Write a query to get the distinct Mondays from hiredate in emp tables.
+	SELECT DISTINCT hiredate, to_char(hiredate,'day')
+	FROM emp
+	WHERE TRIM(TO_CHAR(hiredate,'day'))='monday'
+
+	
+4. Write a query to get the first day of the current year.
+	SELECT ROUND(SYSDATE, 'YEAR')
+	FROM dual;
+
+5. Write a query to get the last day of the current year.
+ 	SELECT ADD_MONTHS(TRUNC (SYSDATE, 'YEAR'), 12) -1 AS last_day
+	FROM dual;
+
+6. Write a query to calculate your age in year.
+	SELECT EXTRACT(YEAR FROM SYSDATE)-1994 AGE
+	from dual;
+
+7. Write a query to get the current date in the following format.
+Sample date : 04-sep-2014
+Output : September 4, 2014
+	SELECT TO_CHAR(SYSDATE, 'Month dd, yyyy')
+	FROM dual;
+
+
+8. Write a query to get the current date in Thursday September 2014 format.
+Thursday September 2014
+	SELECT TO_CHAR(SYSDATE, 'Day Month yyyy')
+	FROM dual;
+
+
+9. Write a query to extract the year from the current date.
+	SELECT EXTRACT(YEAR FROM SYSDATE)
+	FROM dual;
+
+10. Write a query to get the first name and hire date from employees table 
+where hire date between '1981-06-01' and '1981-07-30'
+	SELECT ename, hiredate
+	FROM emp
+	WHERE hiredate BETWEEN '06-JAN-81' AND '30-JUL-81';
+
+11. Write a query to display the current date in the following format.
+Sample output: Thursday 4th September 2014 00:00:00
+	SELECT TO_CHAR(SYSDATE, 'Day ddth Month YYYY hh:mm:ss')
+	FROM dual;
+
+
+12. Write a query to display the current date in the following format.
+Sample output: 05/09/2014
+	SELECT TO_CHAR(SYSDATE, 'DD/MM/YYYY')
+	FROM dual;
+
+13. Write a query to display the current date in the following format.
+Sample output: 12:00 AM Sep 5, 2014
+	SELECT TO_CHAR(SYSDATE,'hh:mm AM Mon dd, yyyy')
+	FROM dual;
+
+
+14. Write a query to get the employees who joined in the month of June.
+	SELECT hiredate, ename
+	FROM emp
+	WHERE EXTRACT(MONTH FROM hiredate)=6;
+15. Write a query to get the years in which more than 10 employees joined.
+	SELECT EXTRACT(YEAR FROM hiredate) year, COUNT(*)
+	FROM emp
+	GROUP BY EXTRACT(YEAR FROM hiredate)
+	HAVING COUNT(*) >= 10;
+
+16. Write a query to get first name of employees who joined in 1981.
+	SELECT ename, hiredate
+	FROM emp
+	WHERE EXTRACT(YEAR from hiredate)=1981;
+
+17. Write a query to get employees whose experience is more than 5 years.
+	SELECT ename, hiredate, FLOOR(((SYSDATE-hiredate)/365)) Exp
+	FROM emp
+	WHERE ((SYSDATE-hiredate)/365)>5;
+
+18. Write a query to get employee ID, last name, and date of first salary of the 
+employees.
+	SELECT empno, ename, hiredate, LAST_DAY(HIREDATE)+1 "FIRST SAL DATE"
+	FROM emp;
+
+19. Write a query to get first name, hire date and experience of the 
+employees.
+Sample table: employees
+	SELECT ename, hiredate, FLOOR(((SYSDATE-hiredate)/365)) Exp
+	FROM emp;
+
+20. Write a query to get the department ID, year, and number of employees 
+joined.
+	SELECT EXTRACT(YEAR FROM hiredate) YEAR, deptno, COUNT(*)
+	FROM emp
+	GROUP BY deptno, EXTRACT(YEAR FROM hiredate)
+	ORDER BY YEAR;

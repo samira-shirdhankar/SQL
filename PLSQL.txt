@@ -1,0 +1,133 @@
+1.Write a program that computes the perimeter and the area of a rectangle. Define 
+your own values for the length and width. (Assuming that L and W are the length 
+and width of the rectangle, Perimeter = 2*(L+W) and Area = L*W. Display the 
+output on the screen using dbms_output.put_line.
+
+To create procedure:
+
+CREATE OR REPLACE PROCEDURE rectangle_lw(length number, width number)
+AS
+perimeter number;
+area number;
+BEGIN
+	perimeter:=2*(length+width);
+    	area:=length*width;
+       	DBMS_OUTPUT.PUT_LINE('Perimeter is ' || perimeter);
+       	DBMS_OUTPUT.PUT_LINE('Area is ' || area);
+END;
+
+To execute the procedure:
+execute rectangle_lw(5,2);
+
+2. Write a program that declares an integer variable called num, assigns a value to it, 
+and computes and inserts into the tempp table the value of the variable itself, its 
+square, and its cube.
+To create tempp table:
+
+CREATE TABLE tempp(
+variable number,
+square number,
+cube number);
+
+To create procedure:
+
+CREATE OR REPLACE PROCEDURE num_squr_cube(num tempp.variable%type)
+AS
+sqr tempp.square%type;
+cub tempp.cube%type;
+BEGIN
+sqr = num * num;
+cub = num * num * num;
+INSERT INTO tempp VALUES(num,sqr,cub);
+DBMS_OUTPUT.PUT_LINE('Inserted square and cube of ' || num || ' successfully');
+END;	
+
+To execute the procedure:
+execute num_squr_cube(5);
+ 
+3. Convert a temperature in Fahrenheit (F) to its equivalent in Celsius (C) and vice 
+versa. The required formulae are:-
+C= (F-32)*5/9
+F= 9/5*C + 32
+Display the output on the screen using dbms_output.put_line. Data has to be 
+input by the user.
+
+To create procedure:
+CREATE OR REPLACE PROCEDURE CEL_FAH(temp number, para varchar2)
+AS
+fah number(5,2);
+cel number(5,2);
+BEGIN
+	IF para in ('c') THEN
+		fah:=((9/5)*temp)+32;
+		DBMS_OUTPUT.PUT_LINE('TEMPERATURE IN FAHRENHEIT IS '|| fah);
+	ELSIF para in ('f') THEN
+		cel:=(temp-32)*(5/9);
+		DBMS_OUTPUT.PUT_LINE('TEMPERATURE IN CELSIUS IS '|| cel);
+	ELSE 
+		DBMS_OUTPUT.PUT_LINE('Enter a valid parameter c or f');
+	end if;
+END;
+
+To execute the procedure:
+execute cel_fah(101,'c');
+
+4. Convert a number of inches into yards, feet, and inches. For example, 124 inches 
+equals 3 yards, 1 foot, and 4 inches. Display the output on the screen using 
+dbms_output.put_line. Data has to be input by the user. 
+
+To create procedure:
+create or replace procedure inch_conv(numb number)
+as
+yard number;
+foot number;
+inch number;
+quo number;
+begin
+	yard:=(round((numb/36),0));
+	quo:=(mod(numb,36));
+	foot:=round((quo/12),0);
+	inch:=(mod(quo,12));
+	DBMS_OUTPUT.PUT_LINE(numb || ' inches equals to ' || yard || ' yards ' || 'and ' || 
+	foot || ' foot ' || ' and ' || inch || ' inches ' );
+END;     
+
+To execute the procedure:
+execute inch_conv(124);
+
+5. Write a program that enables a user to input an integer. The program should then 
+state whether the integer is evenly divisible by 5. (Use decode instead of IF 
+statement where required). Display the output on the screen using 
+dbms_output.put_line. Data has to be input by the user.
+
+To create procedure:
+create or replace procedure division(num Number)
+AS
+RESULT VARCHAR2(20);
+BEGIN
+select decode(mod(num,5),0,'divisble','not divisible') into result from dual;
+dbms_output.put_line(result);
+end;
+
+To execute the procedure:
+execute division(10);
+
+6. Your block should read in two real numbers and tell whether the product of the 
+two numbers is equal to or greater than 100. Display the output on the screen 
+using dbms_output.put_line. (Use decode instead of IF statement where 
+required). Data has to be input by the user
+
+To create procedure:
+create or replace procedure compare(num1 number, num2 number)
+AS
+mul number;
+RESULT VARCHAR2(20);
+BEGIN
+mul=num1 * num2;
+select decode(SIGN(mul-100), 1, ' Multiplication is grater than 100', 
+0, 'Multiplication is equal to 100','Multiplication is less than 100') into result from dual;
+dbms_output.put_line(result);
+end;
+ 
+
+

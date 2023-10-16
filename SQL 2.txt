@@ -1,0 +1,160 @@
+Q1. 
+Create Employee table
+1. Create table employee(
+Empid int,
+Emp_salary int,
+Emp_lastname varchar,
+Emp_firstname text,
+Emp_dob date,
+Emp_deptno int,
+Emp_comm float,
+Primary key((Empid,Emp_salary),Emp_firstname,emp_dob));
+
+What is output of following query
+1. Select * from employee
+Where empid in (1001,1002);
+
+InvalidRequest: Error from server: code=2200 [Invalid query] 
+message="Cannot execute this query as it might involve data filtering and 
+thus may have unpredictable performance. If you want to execute this query 
+despite the performance unpredictability, use ALLOW FILTERING"
+
+Reason: In employee table partition key is emp_id and emp_salary. All columns in 
+partition key can be used with '=' operator and when using where condition on partition key, 
+specifying all columns of partition key is mandatory. 
+
+2. Select * from employee
+Where empid=1001 and emp_dob=’1999-11-11’ and emp_salary=3000 and 
+emp_firstname=’Rajan’;
+
+
+ empid | emp_salary | emp_firstname | emp_dob    | emp_comm | emp_deptno | emp_lastname
+-------+------------+---------------+------------+----------+------------+--------------
+  1001 |       3000 |         Rajan | 1999-11-11 |      500 |         10 |       Ranjan
+
+
+3. Select * from employee
+Where empid=1001 and emp_dob=’1999-11-11’ and emp_salary>2000 and 
+emp_firstname=’Rajan’;
+
+InvalidRequest: Error from server: code=2200 [Invalid query] 
+message="Cannot execute this query as it might involve data filtering and 
+thus may have unpredictable performance. If you want to execute this query 
+despite the performance unpredictability, use ALLOW FILTERING"
+
+Reason: While using WHERE condition, all columns including partition key and cluster key 
+shall be in sequence as mentioned while creating table. The above query will only retreive 
+data when used with 'ALLOW FILTERING' at the end of query.
+  
+
+4. Select * from employee
+Where empid=1001 and emp_dob=’1999-11-11’ and emp_salary>5000 and
+emp_salary<15000;
+
+InvalidRequest: Error from server: code=2200 [Invalid query] 
+message="Cannot execute this query as it might involve data filtering and 
+thus may have unpredictable performance. If you want to execute this query 
+despite the performance unpredictability, use ALLOW FILTERING"
+
+Reason: While using WHERE condition, all columns including partition key and cluster key 
+shall be in sequence as mentioned while creating table. The above query will only retreive 
+data when used with 'ALLOW FILTERING' at the end of query.
+
+5. Select * from employee
+Where empid=1001 and emp_dob=’1999-11-11’ and emp_salary>5000 and emp_deptno>10;
+
+InvalidRequest: Error from server: code=2200 [Invalid query] 
+message="Cannot execute this query as it might involve data filtering and 
+thus may have unpredictable performance. If you want to execute this query 
+despite the performance unpredictability, use ALLOW FILTERING"
+
+Reason: While using WHERE condition, all columns including partition key and cluster key 
+shall be in sequence as mentioned while creating table. The above query will only retreive 
+data when used with 'ALLOW FILTERING' at the end of query.
+
+6. Select * from employee
+Where empid=1001 and emp_dob=’1999-11-11’ and emp_salary<5000 and emp_deptno>10
+ALLOW FILTERING;
+
+empid | emp_salary | emp_firstname | emp_dob | emp_comm | emp_deptno | emp_lastname
+-------+------------+---------------+---------+----------+------------+--------------
+
+
+2. Create table to store information about singer, use appropriate collections to store data
+Sid and name will be primary key
+Sid integer, name string, store list of songs he/she sung, store list of music directors names and how 
+many songs he sung with the director, store names of studios where recordings have been done and 
+how many times recording has been done in the studio, also store movie, director name and song in 
+the movie he/she sung.
+
+CREATE TABLE singer(sid int, name text, songs list<text>, music_dir list<frozen<map<text,int>>>, 
+studios list<frozen<map<text,int>>>, movie list<frozen<tuple<text,text,list<text>>>>, 
+PRIMARY KEY (sid, name));
+
+CREATE TABLE singer(sid int,name text, songs list<text>,music_directors map<text,int>, 
+studio map<text,int>, movie text, movie_director text, total_songs int, 
+PRIMARY KEY (sid, name));
+
+A. Write query to add new director name and count 1 in the table
+UPDATE singer
+SET music_dir=music_dir+{'kishan':1}
+WHERE sid=2 AND name='shaan';
+
+B. List all records of ‘sonu nigam’
+
+ SELECT * FROM singer WHERE sid=1 AND name='sonu nigam';
+
+C. Add new studio in ‘shan’ and ‘shreya’s list
+UPDATE singer
+SET studio=studio+{'dharma':2}
+WHERE sid=2 AND name='shaan'; 
+
+UPDATE singer
+SET studio=studio+{'dharma':2}
+WHERE sid=3 AND name='shreya ghoshal';
+
+
+D. Perform batch operation to insert 2 records and delete 1 record from above 
+table
+BEGIN BATCH
+INSERT INTO singer(sid,name,songs,music_directors,studio,movie,movie_director,total_songs)
+VALUES(4,'ARIJIT SINGH',['Tum hi ho','Iktara'],{'vidyasagar':6,'mani sharma':4},
+{'AS studios':3,'BL studios':9},'WAKE UP SID','Ayan mukherji',4);
+INSERT INTO singer(sid,name,songs,music_directors,studio,movie,movie_director,total_songs)
+VALUES(5,'BAPPI LAHIRI',['I am a disco dancer','Rambha ho'],{'mithun':2,'babbar subhash':3},
+{'BL studios':1,'Mithu studios':1},'DISCO DANCER','Subhash',6);
+DELETE FROM singer WHERE sid=3 AND name='shreya ghoshal';
+APPLY BATCH;
+
+E. Delete list of studios and movies from above table from ‘shan’ and ‘sonu nigam’s 
+record.
+DELETE studio
+FROM singer
+where sid=2 and name='shaan';
+
+DELETE studio
+FROM singer
+where sid=1 and name='sonu nigam';
+
+3. Create a data type to store information about server. For each server store id, name, ram 
+capacity. Create a table lacation to store bldgname,floor number and list of servers on the 
+floor. Building name is primary key and floor number is cluster key
+
+CREATE TYPE server(sid text, name text, ram int);
+
+CREATE TABLE location(bname text,flno int, server_list list<frozen<server>>, PRIMARY KEY((bname),flno));
+
+INSERT INTO location(bname,flno, server_list) VALUES('A',6,[{sid:'12',name:'jio',ram:8},{sid:'13',name:'airtel',ram:12}]);
+INSERT INTO location(bname,flno, server_list) VALUES('B',8,[{sid:'14',name:'Docomo',ram:6},{sid:'15',name:'SIM',ram:4}]);
+INSERT INTO location(bname,flno, server_list) VALUES('C',5,[{sid:'16',name:'VI',ram:8},{sid:'17',name:'airtel',ram:8}]);
+
+a. Find list of all servers from ‘A’ building and floor number > 5
+	SELECT server_list
+	FROM LOCATION
+	WHERE bname='A' AND flno>5;
+
+b. Find list of all servers from ‘A’,’B’,’C’ building
+	SELECT server_list
+	FROM location
+	WHERE bname in ('A','B','C');
+
